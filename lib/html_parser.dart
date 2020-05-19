@@ -23,7 +23,6 @@ typedef CustomRender = Widget Function(
 
 class HtmlParser extends StatelessWidget {
   final String htmlData;
-  final String cssData;
   final OnTap onLinkTap;
   final OnTap onImageTap;
   final ImageErrorListener onImageError;
@@ -35,7 +34,6 @@ class HtmlParser extends StatelessWidget {
 
   HtmlParser({
     @required this.htmlData,
-    @required this.cssData,
     this.onLinkTap,
     this.onImageTap,
     this.onImageError,
@@ -48,7 +46,6 @@ class HtmlParser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     dom.Document document = parseHTML(htmlData);
-    css.StyleSheet sheet = parseCSS(cssData);
     StyledElement lexedTree = lexDomTree(
       document,
       customRender?.keys?.toList() ?? [],
@@ -64,7 +61,7 @@ class HtmlParser extends StatelessWidget {
       RenderContext(
         buildContext: context,
         parser: this,
-        style: Style.fromTextStyle(Theme.of(context).textTheme.body1),
+        style: Style.fromTextStyle(Theme.of(context).textTheme.bodyText2),
       ),
       cleanedTree,
     );
@@ -410,7 +407,7 @@ class HtmlParser extends StatelessWidget {
     if (tree.style.display == Display.BLOCK) {
       wpc.data = false;
     }
-    
+
     if (tree is ImageContentElement || tree is SvgContentElement) {
       wpc.data = false;
     }
@@ -420,7 +417,7 @@ class HtmlParser extends StatelessWidget {
         tree.text = tree.text.replaceFirst(' ', '');
       }
 
-      if (tree.text.endsWith(' ')) {
+      if (tree.text.endsWith(' ') || tree.text.endsWith('\n')) {
         wpc.data = true;
       } else {
         wpc.data = false;
@@ -488,12 +485,15 @@ class HtmlParser extends StatelessWidget {
   /// properties.
   static StyledElement _processBeforesAndAfters(StyledElement tree) {
     if (tree.style?.before != null) {
-      tree.children.insert(0, TextContentElement(text: tree.style.before));
+      tree.children?.insert(
+          0, TextContentElement(text: tree.style.before, style: tree.style));
     }
     if (tree.style?.after != null) {
-      tree.children.add(TextContentElement(text: tree.style.after));
+      tree.children
+          ?.add(TextContentElement(text: tree.style.after, style: tree.style));
+    } else {
+      tree.children?.forEach(_processBeforesAndAfters);
     }
-    tree.children?.forEach(_processBeforesAndAfters);
     return tree;
   }
 
@@ -722,7 +722,10 @@ class StyledText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: style.display == Display.BLOCK || style.display == Display.LIST_ITEM? double.infinity: null,
+      width:
+          style.display == Display.BLOCK || style.display == Display.LIST_ITEM
+              ? double.infinity
+              : null,
       child: Text.rich(
         textSpan,
         style: style.generateTextStyle(),

@@ -7,13 +7,15 @@
 A Flutter widget for rendering html and css as Flutter widgets.
 
 <img alt="A Screenshot of flutter_html" src=".github/flutter_html_screenshot.png" width="300"/>
+<img alt="Another Screenshot of flutter_html" src=".github/flutter_html_screenshot2.png" width="300"/>
+<img alt="Yet another Screenshot of flutter_html" src=".github/flutter_html_screenshot3.png" width="300"/>
 
 ## Installing:
 
 Add the following to your `pubspec.yaml` file:
 
     dependencies:
-      flutter_html: ^1.0.0-pre.1
+      flutter_html: ^1.0.0
 
 ## Currently Supported HTML Tags:
 `a`, `abbr`, `acronym`, `address`, `article`, `aside`, `b`, `bdi`, `bdo`, `big`, `blockquote`, `body`, `br`, `caption`, `cite`, `code`, `data`, `dd`, `del`, `dfn`, `div`, `dl`, `dt`, `em`, `figcaption`, `figure`, `footer`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `header`, `hr`, `i`, `img`, `ins`, `kbd`, `li`, `main`, `mark`, `nav`, `noscript`, `ol`, `p`, `pre`, `q`, `rp`, `rt`, `ruby`, `s`, `samp`, `section`, `small`, `span`, `strike`, `strong`, `sub`, `sup`, `table`, `tbody`, `td`, `template`, `tfoot`, `th`, `thead`, `time`, `tr`, `tt`, `u`, `ul`, `var`
@@ -28,7 +30,7 @@ See the [development roadmap](https://github.com/Sub6Resources/flutter_html/wiki
 ## Why this package?
 
 This package is designed with simplicity in mind. Originally created to allow basic rendering of HTML content into the Flutter widget tree,
-this project has expanded to include support for basic CSS styling (both inline and in the `<style>` tag).
+this project has expanded to include support for basic styling as well!.
 
 ## Example Usage:
 (For a much more extensive example, look at example/main.dart).
