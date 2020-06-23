@@ -23,6 +23,7 @@ typedef CustomRender = Widget Function(
 
 class HtmlParser extends StatelessWidget {
   final String htmlData;
+  final String cssData = "";
   final OnTap onLinkTap;
   final OnTap onImageTap;
   final ImageErrorListener onImageError;
@@ -46,6 +47,7 @@ class HtmlParser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     dom.Document document = parseHTML(htmlData);
+    css.StyleSheet sheet = parseCSS(cssData);
     StyledElement lexedTree = lexDomTree(
       document,
       customRender?.keys?.toList() ?? [],
