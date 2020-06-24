@@ -35,6 +35,9 @@ Style declarationsToStyle(Map<String, List<css.Expression>> declarations) {
       case 'font-feature-settings':
         style.fontFeatureSettings = ExpressionMapping.expressionToFontFeatureSettings(value);
         break;
+      case 'font-size':
+        style.fontSize = ExpressionMapping.expressionToFontSize(value.first);
+        break;
       case 'text-shadow':
         style.textShadow = ExpressionMapping.expressionToTextShadow(value);
         break;
@@ -162,6 +165,13 @@ class ExpressionMapping {
   static String expressionToFontFamily(css.Expression value) {
     if(value is css.LiteralTerm)
       return value.text;
+  }
+
+  static FontSize expressionToFontSize(css.Expression value) {
+    if(value is css.LiteralTerm) {
+      var valueDouble = double.parse(value.text);
+      return FontSize(valueDouble);
+    }
   }
 }
 
