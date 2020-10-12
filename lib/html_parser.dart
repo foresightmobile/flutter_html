@@ -478,7 +478,7 @@ class HtmlParser extends StatelessWidget {
     } else if (tree.style.display == Display.LIST_ITEM) {
       switch (tree.style.listStyleType) {
         case ListStyleType.DISC:
-          tree.style.markerContent = '•';
+          tree.style.markerContent = '●';
           break;
         case ListStyleType.DECIMAL:
           olStack.last.data += 1;
