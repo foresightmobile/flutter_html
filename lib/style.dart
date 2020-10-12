@@ -301,6 +301,7 @@ class Style {
       textShadow: child.textShadow ?? textShadow,
       whiteSpace: child.whiteSpace ?? whiteSpace,
       wordSpacing: child.wordSpacing ?? wordSpacing,
+      lineHeight: child.lineHeight ?? lineHeight
     );
   }
 
