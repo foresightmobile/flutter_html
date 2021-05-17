@@ -15,42 +15,42 @@ class StyledElement {
 
   StyledElement({
     this.name = "[[No name]]",
-    this.elementId,
-    this.elementClasses,
-    this.children,
-    this.style,
-    dom.Element node,
+    this.elementId = "[[No ID]]",
+    this.elementClasses = const [],
+    @required this.children,
+    @required this.style,
+    @required dom.Element node,
   }) : this._node = node;
 
-  bool matchesSelector(String selector) =>
-      _node != null && matches(_node, selector);
+  bool matchesSelector(String selector) => _node != null && matches(_node as dom.Element, selector);
 
-  Map<String, String> get attributes => _node.attributes.map((key, value) {
-        return MapEntry(key, value);
-      });
+  Map<String, String> get attributes =>
+      _node?.attributes?.map((key, value) {
+        return MapEntry(key.toString(), value);
+      }) ??
+      Map<String, String>();
 
-  dom.Element get element => _node;
+  dom.Element get element => _node as dom.Element;
 
   @override
   String toString() {
     String selfData =
-        "[$name] ${children?.length ?? 0} ${elementClasses?.isNotEmpty == true ? 'C:${elementClasses.toString()}' : ''}${elementId?.isNotEmpty == true ? 'ID: $elementId' : ''}";
-    children?.forEach((child) {
-      selfData += ("\n${child.toString()}")
-          .replaceAll(RegExp("^", multiLine: true), "-");
+        "[$name] ${children.length} ${elementClasses.isNotEmpty == true ? 'C:${elementClasses.toString()}' : ''}${elementId.isNotEmpty == true ? 'ID: $elementId' : ''}";
+    children.forEach((child) {
+      selfData += ("\n${child.toString()}").replaceAll(RegExp("^", multiLine: true), "-");
     });
     return selfData;
   }
 }
 
-StyledElement parseStyledElement(
-    dom.Element element, List<StyledElement> children) {
+StyledElement parseStyledElement(dom.Element element, List<StyledElement> children) {
   StyledElement styledElement = StyledElement(
     name: element.localName,
     elementId: element.id,
     elementClasses: element.classes.toList(),
     children: children,
     node: element,
+    style: Style(),
   );
 
   switch (element.localName) {
@@ -80,10 +80,7 @@ StyledElement parseStyledElement(
       );
       break;
     case "bdo":
-      TextDirection textDirection =
-          ((element.attributes["dir"] ?? "ltr") == "rtl")
-              ? TextDirection.rtl
-              : TextDirection.ltr;
+      TextDirection textDirection = ((element.attributes["dir"] ?? "ltr") == "rtl") ? TextDirection.rtl : TextDirection.ltr;
       styledElement.style = Style(
         direction: textDirection,
       );
@@ -255,6 +252,7 @@ StyledElement parseStyledElement(
     case "li":
       styledElement.style = Style(
         display: Display.LIST_ITEM,
+        color: Colors.black,
       );
       break;
     case "main":
@@ -285,17 +283,15 @@ StyledElement parseStyledElement(
         styledElement.style = Style(
 //          margin: EdgeInsets.only(left: 30.0),
           display: Display.BLOCK,
-          listStyleType: element.localName == "ol"
-              ? ListStyleType.DECIMAL
-              : ListStyleType.DISC,
+          color: Colors.black,
+          listStyleType: element.localName == "ol" ? ListStyleType.DECIMAL : ListStyleType.DISC,
         );
       } else {
         styledElement.style = Style(
 //          margin: EdgeInsets.only(left: 30.0, top: 14.0, bottom: 14.0),
           display: Display.BLOCK,
-          listStyleType: element.localName == "ol"
-              ? ListStyleType.DECIMAL
-              : ListStyleType.DISC,
+          color: Colors.black,
+          listStyleType: element.localName == "ol" ? ListStyleType.DECIMAL : ListStyleType.DISC,
         );
       }
       break;
@@ -349,8 +345,6 @@ StyledElement parseStyledElement(
         verticalAlign: VerticalAlign.SUPER,
       );
       break;
-    case "th":
-      continue bold;
     case "tt":
       continue monospace;
     underline:

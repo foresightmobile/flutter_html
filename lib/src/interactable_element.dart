@@ -1,3 +1,4 @@
+// @dart = 2.9
 import 'package:flutter/material.dart';
 import 'package:flutter_html/src/html_elements.dart';
 import 'package:flutter_html/style.dart';
