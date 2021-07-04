@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/src/css_parser.dart';
 import 'package:flutter_html/style.dart';
 import 'package:html/dom.dart' as dom;
 //TODO(Sub6Resources): don't use the internal code of the html package as it may change unexpectedly.
@@ -11,31 +12,33 @@ class StyledElement {
   final List<String> elementClasses;
   List<StyledElement> children;
   Style style;
-  final dom.Node _node;
+  final dom.Node? _node;
 
   StyledElement({
     this.name = "[[No name]]",
-    this.elementId,
-    this.elementClasses,
-    this.children,
-    this.style,
-    dom.Element node,
+    this.elementId = "[[No ID]]",
+    this.elementClasses = const [],
+    required this.children,
+    required this.style,
+    required dom.Element? node,
   }) : this._node = node;
 
   bool matchesSelector(String selector) =>
-      _node != null && matches(_node, selector);
+      _node != null && matches(_node as dom.Element, selector);
 
-  Map<String, String> get attributes => _node.attributes.map((key, value) {
-        return MapEntry(key, value);
-      });
+  Map<String, String> get attributes =>
+      _node?.attributes.map((key, value) {
+        return MapEntry(key.toString(), value);
+      }) ??
+      Map<String, String>();
 
-  dom.Element get element => _node;
+  dom.Element? get element => _node as dom.Element?;
 
   @override
   String toString() {
     String selfData =
-        "[$name] ${children?.length ?? 0} ${elementClasses?.isNotEmpty == true ? 'C:${elementClasses.toString()}' : ''}${elementId?.isNotEmpty == true ? 'ID: $elementId' : ''}";
-    children?.forEach((child) {
+        "[$name] ${children.length} ${elementClasses.isNotEmpty == true ? 'C:${elementClasses.toString()}' : ''}${elementId.isNotEmpty == true ? 'ID: $elementId' : ''}";
+    children.forEach((child) {
       selfData += ("\n${child.toString()}")
           .replaceAll(RegExp("^", multiLine: true), "-");
     });
@@ -46,11 +49,12 @@ class StyledElement {
 StyledElement parseStyledElement(
     dom.Element element, List<StyledElement> children) {
   StyledElement styledElement = StyledElement(
-    name: element.localName,
+    name: element.localName!,
     elementId: element.id,
     elementClasses: element.classes.toList(),
     children: children,
     node: element,
+    style: Style(),
   );
 
   switch (element.localName) {
@@ -95,7 +99,7 @@ StyledElement parseStyledElement(
       break;
     case "blockquote":
       //TODO(Sub6Resources) this is a workaround for collapsing margins. Remove.
-      if (element.parent.localName == "blockquote") {
+      if (element.parent!.localName == "blockquote") {
         styledElement.style = Style(
           margin: const EdgeInsets.only(left: 40.0, right: 40.0, bottom: 14.0),
           display: Display.BLOCK,
@@ -174,6 +178,17 @@ StyledElement parseStyledElement(
     case "footer":
       styledElement.style = Style(
         display: Display.BLOCK,
+      );
+      break;
+    case "font":
+      styledElement.style = Style(
+        color: element.attributes['color'] != null ?
+          element.attributes['color']!.startsWith("#") ?
+            ExpressionMapping.stringToColor(element.attributes['color']!) :
+            ExpressionMapping.namedColorToColor(element.attributes['color']!) :
+          null,
+        fontFamily: element.attributes['face']?.split(",").first,
+        fontSize: numberToFontSize(element.attributes['size'] ?? ''),
       );
       break;
     case "h1":
@@ -281,7 +296,7 @@ StyledElement parseStyledElement(
     case "ol":
     case "ul":
       //TODO(Sub6Resources): This is a workaround for collapsed margins. Remove.
-      if (element.parent.localName == "li") {
+      if (element.parent!.localName == "li") {
         styledElement.style = Style(
 //          margin: EdgeInsets.only(left: 30.0),
           display: Display.BLOCK,
@@ -349,8 +364,6 @@ StyledElement parseStyledElement(
         verticalAlign: VerticalAlign.SUPER,
       );
       break;
-    case "th":
-      continue bold;
     case "tt":
       continue monospace;
     underline:
@@ -367,3 +380,31 @@ StyledElement parseStyledElement(
 }
 
 typedef ListCharacter = String Function(int i);
+
+FontSize numberToFontSize(String num) {
+  switch (num) {
+    case "1":
+      return FontSize.xxSmall;
+    case "2":
+      return FontSize.xSmall;
+    case "3":
+      return FontSize.small;
+    case "4":
+      return FontSize.medium;
+    case "5":
+      return FontSize.large;
+    case "6":
+      return FontSize.xLarge;
+    case "7":
+      return FontSize.xxLarge;
+  }
+  if (num.startsWith("+")) {
+    final relativeNum = double.tryParse(num.substring(1)) ?? 0;
+    return numberToFontSize((3 + relativeNum).toString());
+  }
+  if (num.startsWith("-")) {
+    final relativeNum = double.tryParse(num.substring(1)) ?? 0;
+    return numberToFontSize((3 - relativeNum).toString());
+  }
+  return FontSize.medium;
+}
